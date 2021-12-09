@@ -2,7 +2,7 @@ package mysql
 
 import (
 	"fmt"
-	"test/utils"
+	"testplay/utils"
 )
 
 type User struct {
@@ -16,7 +16,7 @@ type User struct {
 	Pets         []*Pet   `json:"pets" xorm:""`
 }
 
-func (u *User)TableName() string {
+func (u *User) TableName() string {
 	return "user"
 }
 
@@ -32,7 +32,7 @@ func TmpAddMany(us []*User) (err error) {
 	return
 }
 
-func TmpAdd(u *User) (id int64, err error){
+func TmpAdd(u *User) (id int64, err error) {
 	id, err = utils.Engine.Insert(u)
 	fmt.Println(id, err, u)
 	return

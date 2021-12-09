@@ -1,7 +1,7 @@
 package es
 
 import (
-	"test/utils"
+	"testplay/utils"
 )
 
 type UserES struct {
@@ -77,7 +77,7 @@ func RandomPet() *Pet {
 	}
 }
 
-func TmpSearch()  {
+func TmpSearch() {
 	cli := utils.NewClient()
 	cli.SetIndex("user")
 }

@@ -15,10 +15,10 @@ import (
 	"net"
 	"strconv"
 	"sync"
-	"test/model/es"
-	"test/model/mysql"
-	"test/service"
-	"test/utils"
+	"testplay/model/es"
+	"testplay/model/mysql"
+	"testplay/service"
+	"testplay/utils"
 	"time"
 )
 

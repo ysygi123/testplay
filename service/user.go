@@ -2,8 +2,8 @@ package service
 
 import (
 	"strconv"
-	"test/model/es"
-	"test/utils"
+	"testplay/model/es"
+	"testplay/utils"
 )
 
 func AddUser(id int, username, email, textInfo string) error {
