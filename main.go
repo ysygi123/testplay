@@ -23,7 +23,9 @@ import (
 )
 
 func main() {
-	utils.A()
+	s := "{\n    \"code\": 0,\n    \"message\": \"success\",\n    \"data\": \"success\"\n}"
+	utils.GloableProducerDBManager.SendMessageSync("testTopic", []byte(s))
+	utils.Pull()
 }
 
 func TestArrayColumn() {

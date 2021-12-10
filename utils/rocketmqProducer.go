@@ -9,13 +9,13 @@ import (
 )
 
 type ProducerDBManager struct {
-	producer rocketmq.Producer
+	producer   rocketmq.Producer
 	NameServer []string
 }
 
 var GloableProducerDBManager *ProducerDBManager
 
-func init()  {
+func init() {
 	GloableProducerDBManager = &ProducerDBManager{
 		NameServer: []string{"127.0.0.1:9876"},
 	}
@@ -25,12 +25,11 @@ func init()  {
 	}
 }
 
-func (p *ProducerDBManager)newProducer() (err error) {
+func (p *ProducerDBManager) newProducer() (err error) {
 	mqProducer, err := rocketmq.NewProducer(
-		producer.WithGroupName("test_group_1"),
-		producer.WithNameServer(p.NameServer),
-		producer.WithRetry(3),
-		)
+		producer.WithNsResolver(primitive.NewPassthroughResolver(p.NameServer)),
+		producer.WithRetry(2),
+	)
 	if err != nil {
 		return
 	}
@@ -39,16 +38,16 @@ func (p *ProducerDBManager)newProducer() (err error) {
 	return
 }
 
-func (p *ProducerDBManager)GetProducer() rocketmq.Producer {
+func (p *ProducerDBManager) GetProducer() rocketmq.Producer {
 	return p.producer
 }
 
-func (p *ProducerDBManager)makeMessage(topic string, body []byte) (msg *primitive.Message) {
+func (p *ProducerDBManager) makeMessage(topic string, body []byte) (msg *primitive.Message) {
 	msg = primitive.NewMessage(topic, body)
 	return
 }
 
-func (p *ProducerDBManager)SendMessageSync(topic string, body []byte)  {
+func (p *ProducerDBManager) SendMessageSync(topic string, body []byte) {
 	res, err := p.GetProducer().SendSync(context.Background(), p.makeMessage(topic, body))
 	fmt.Println("[][][][][][][][][][][][][][][][][][][][][][][][]")
 	fmt.Println(res.String(), err)
