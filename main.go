@@ -23,9 +23,7 @@ import (
 )
 
 func main() {
-	s := "{\n    \"code\": 0,\n    \"message\": \"success\",\n    \"data\": \"success\"\n}"
-	utils.GloableProducerDBManager.SendMessageSync("testTopic", []byte(s))
-	utils.Pull()
+	RocketMQTest()
 }
 
 func TestArrayColumn() {
@@ -356,4 +354,30 @@ func EsManySearch() {
 	query := elastic.NewBoolQuery().Filter(q)
 	ess, _ := utils.NewClient().EsClient.Search("user").Query(query).Do(context.Background())
 	fmt.Println(ess)
+}
+
+func RocketMQTest() {
+	//s := "当前时间:" + time.Now().String()
+	utils.GloableProducerDBManager.SendMessageSync("testTopic", []byte("当前时间:"+time.Now().String()))
+	err := utils.GetStartConsumer("testTopic", "notify_consumer_success", "t1", utils.F1)
+	if err != nil {
+		panic(err)
+	}
+	err = utils.GetStartConsumer("testTopic", "notify_consumer_success", "t2", utils.F2)
+	if err != nil {
+		panic(err)
+	}
+	ticker := time.NewTicker(time.Second * 1) // 运行时长
+	var x int
+	for x < 10 {
+		select {
+		case <-ticker.C:
+			x++
+			utils.GloableProducerDBManager.SendMessageSync("testTopic", []byte("当前时间:"+time.Now().String()))
+		}
+	}
+	ticker.Stop()
+
+	//utils.GloableProducerDBManager.SendMessageSync("testTopic", []byte(s))
+	//time.Sleep(1)
 }

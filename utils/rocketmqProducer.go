@@ -8,6 +8,8 @@ import (
 	"github.com/apache/rocketmq-client-go/v2/producer"
 )
 
+var NameServer = []string{"192.168.3.185:9876"}
+
 type ProducerDBManager struct {
 	producer   rocketmq.Producer
 	NameServer []string
@@ -17,7 +19,7 @@ var GloableProducerDBManager *ProducerDBManager
 
 func init() {
 	GloableProducerDBManager = &ProducerDBManager{
-		NameServer: []string{"127.0.0.1:9876"},
+		NameServer: NameServer,
 	}
 	err := GloableProducerDBManager.newProducer()
 	if err != nil {
@@ -49,6 +51,13 @@ func (p *ProducerDBManager) makeMessage(topic string, body []byte) (msg *primiti
 
 func (p *ProducerDBManager) SendMessageSync(topic string, body []byte) {
 	res, err := p.GetProducer().SendSync(context.Background(), p.makeMessage(topic, body))
+	fmt.Println("[][][][][][][][][][][][][][][][][][][][][][][][]")
+	fmt.Println(res.String(), err)
+	fmt.Println("[][][][][][][][][][][][][][][][][][][][][][][][]")
+}
+
+func (p *ProducerDBManager) SendMessageSyncWithTag(topic, tag string, body []byte) {
+	res, err := p.GetProducer().SendSync(context.Background(), p.makeMessage(topic, body).WithTag(tag))
 	fmt.Println("[][][][][][][][][][][][][][][][][][][][][][][][]")
 	fmt.Println(res.String(), err)
 	fmt.Println("[][][][][][][][][][][][][][][][][][][][][][][][]")
