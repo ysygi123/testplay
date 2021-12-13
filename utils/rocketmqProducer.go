@@ -8,7 +8,8 @@ import (
 	"github.com/apache/rocketmq-client-go/v2/producer"
 )
 
-var NameServer = []string{"192.168.3.185:9876"}
+// var NameServer = []string{"192.168.3.185:9876"}
+var NameServer = []string{"192.168.11.98:9876"}
 
 type ProducerDBManager struct {
 	producer   rocketmq.Producer

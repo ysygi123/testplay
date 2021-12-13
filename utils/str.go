@@ -17,11 +17,11 @@ func GetRandomString(n int) string {
 	return string(b)
 }
 
-func b2s(b []byte) string {
+func B2S(b []byte) string {
 	return *(*string)(unsafe.Pointer(&b))
 }
 
-func s2b(s string) (b []byte) {
+func S2B(s string) (b []byte) {
 	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
 	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
 	bh.Data = sh.Data

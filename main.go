@@ -23,7 +23,7 @@ import (
 )
 
 func main() {
-	RocketMQTest()
+	utils.Pull()
 }
 
 func TestArrayColumn() {

@@ -21,8 +21,9 @@ func A() {
 
 func Pull() {
 	c, err := consumer.NewPullConsumer(
-		consumer.WithGroupName("test_group_1"),
-		consumer.WithNsResolver(primitive.NewPassthroughResolver(NameServer)),
+		consumer.WithGroupName("groupName"),
+		consumer.WithNameServer(NameServer),
+		consumer.WithInstance("instanceName"),
 	)
 	if err != nil {
 		panic(err)
@@ -38,7 +39,7 @@ func Pull() {
 	for {
 		resp, err = c.Pull(ctx, "testTopic", selecter, 10)
 		if err != nil {
-			fmt.Println(err, "我草你妈呀")
+			fmt.Println(err, "出现异常")
 			continue
 		}
 		fmt.Println("------------------------------------------")
@@ -61,7 +62,7 @@ func Push() {
 	selector := consumer.MessageSelector{
 		Type: consumer.TAG,
 	}
-	fmt.Println("养狗死全家1")
+	fmt.Println("[---------]1")
 	err = MqPushConsumerSuccess.Subscribe("testTopic", selector, func(ctx context.Context, msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
 		for i := range msgs {
 			fmt.Println("看看这里是我收到的消息啊啊啊啊==========" + string(msgs[i].Body))
@@ -72,7 +73,7 @@ func Push() {
 		panic(fmt.Sprintf("我草我看看是不是这个了consumer subscribe TopicNotifySucess err:%v", err))
 		return
 	}
-	fmt.Println("养狗死全家2")
+	fmt.Println("[---------]2")
 	err = MqPushConsumerSuccess.Start()
 	if err != nil {
 		panic(err)
@@ -81,7 +82,7 @@ func Push() {
 
 func GetStartConsumer(topic, groupName, instanceName string, f func(ctx context.Context, msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error)) (err error) {
 	if len(topic) == 0 {
-		err = fmt.Errorf("养狗死全家 没有")
+		err = fmt.Errorf("[---------] 没有")
 	}
 	MqPushConsumerSuccess, err := rocketmq.NewPushConsumer(
 		consumer.WithGroupName(groupName),
@@ -94,9 +95,9 @@ func GetStartConsumer(topic, groupName, instanceName string, f func(ctx context.
 		return
 	}
 	selector := consumer.MessageSelector{
-		Type: consumer.TAG,
+		//Type: consumer.TAG,
 	}
-	fmt.Println("养狗死全家1")
+	fmt.Println("[---------]1")
 	err = MqPushConsumerSuccess.Subscribe(topic, selector, f)
 	if err != nil {
 		return
@@ -107,14 +108,14 @@ func GetStartConsumer(topic, groupName, instanceName string, f func(ctx context.
 
 func F1(ctx context.Context, msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
 	for i := range msgs {
-		fmt.Println("养狗死全家 消费者 【1】 ==========" + string(msgs[i].Body))
+		fmt.Println("[---------] 消费者 【1】 ==========" + string(msgs[i].Body))
 	}
 	return consumer.ConsumeSuccess, nil
 }
 
 func F2(ctx context.Context, msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
 	for i := range msgs {
-		fmt.Println("养狗死全家 消费者 【2】 ==========" + string(msgs[i].Body))
+		fmt.Println("[---------] 消费者 【2】 ==========" + string(msgs[i].Body))
 	}
 	return consumer.ConsumeSuccess, nil
 }
