@@ -12,8 +12,8 @@ func ArrayColumn(desk, input interface{}, columnKey, indexKey string) (err error
 		return
 	}
 
-	if len(columnKey) == 0 && len(indexKey) != 0{
-		err = indexChange(desk, input,indexKey)
+	if len(columnKey) == 0 && len(indexKey) != 0 {
+		err = indexChange(desk, input, indexKey)
 	}
 
 	if len(columnKey) != 0 && len(indexKey) != 0 {
@@ -52,7 +52,7 @@ func commonValidate(deskType, inputType reflect.Type, deskValue, inputValue refl
 }
 
 // commonIndexValidate 公共验证
-func commonIndexValidate(deskType reflect.Type) (err error)  {
+func commonIndexValidate(deskType reflect.Type) (err error) {
 	if deskType.Elem().Kind() != reflect.Map {
 		err = fmt.Errorf("不是map")
 		return
@@ -113,13 +113,13 @@ func indexColumnChange(desk, input interface{}, columnKey, indexKey string) (err
 	}
 
 	//如果input是个[]map或者[]*map
-	if inputType.Elem().Kind() == reflect.Map{
+	if inputType.Elem().Kind() == reflect.Map {
 		for i := 0; i < inputValue.Len(); i++ {
 			findKey := false
 			findCol := false
 			key := reflect.Value{}
 			value := reflect.Value{}
-			for _, v := range inputValue.Index(i).MapKeys(){
+			for _, v := range inputValue.Index(i).MapKeys() {
 				err = checkKeyAndColumn(indexKey, columnKey, v, inputValue.Index(i), &findKey, &findCol, deskType, &key, &value)
 				if err != nil {
 					return
@@ -135,13 +135,13 @@ func indexColumnChange(desk, input interface{}, columnKey, indexKey string) (err
 			}
 			deskValue.Elem().SetMapIndex(key, value)
 		}
-	}else if inputType.Elem().Kind() == reflect.Ptr && inputType.Elem().Elem().Kind() == reflect.Map {
+	} else if inputType.Elem().Kind() == reflect.Ptr && inputType.Elem().Elem().Kind() == reflect.Map {
 		for i := 0; i < inputValue.Len(); i++ {
 			findKey := false
 			findCol := false
 			key := reflect.Value{}
 			value := reflect.Value{}
-			for _, v := range inputValue.Index(i).Elem().MapKeys(){
+			for _, v := range inputValue.Index(i).Elem().MapKeys() {
 				//这边多一个elem 多一个指针
 				err = checkKeyAndColumn(indexKey, columnKey, v, inputValue.Index(i).Elem(), &findKey, &findCol, deskType, &key, &value)
 				if err != nil {
@@ -159,7 +159,7 @@ func indexColumnChange(desk, input interface{}, columnKey, indexKey string) (err
 			deskValue.Elem().SetMapIndex(key, value)
 
 		}
-	}else if inputType.Elem().Kind() == reflect.Ptr && inputType.Elem().Elem().Kind() == reflect.Struct {
+	} else if inputType.Elem().Kind() == reflect.Ptr && inputType.Elem().Elem().Kind() == reflect.Struct {
 		structFieldKey, ok := inputType.Elem().Elem().FieldByName(indexKey)
 		if !ok {
 			err = fmt.Errorf("无 key 字段")
@@ -177,7 +177,7 @@ func indexColumnChange(desk, input interface{}, columnKey, indexKey string) (err
 			return
 		}
 
-		if deskType.Elem().Elem().String() !=  structFieldColumn.Type.Kind().String(){
+		if deskType.Elem().Elem().String() != structFieldColumn.Type.Kind().String() {
 			err = fmt.Errorf("value类型不对等")
 			return
 		}
@@ -185,7 +185,7 @@ func indexColumnChange(desk, input interface{}, columnKey, indexKey string) (err
 		for i := 0; i < inputValue.Len(); i++ {
 			deskValue.Elem().SetMapIndex(inputValue.Index(i).Elem().FieldByName(indexKey), inputValue.Index(i).Elem().FieldByName(columnKey))
 		}
-	}else {
+	} else {
 		err = fmt.Errorf("传入数组类型错误")
 	}
 
@@ -220,7 +220,7 @@ func checkIsThisKey(key string, v, indexValue reflect.Value, deskType reflect.Ty
 
 	if indexValue.MapIndex(v).Kind().String() != deskType.Elem().Key().String() {
 		err = fmt.Errorf("key 类型不对等")
-	}else {
+	} else {
 		returnValue = indexValue.MapIndex(v)
 	}
 	return
@@ -268,11 +268,11 @@ func ArrayUnique(desk, input interface{}) (err error) {
 		err = fmt.Errorf("类型错误")
 		return
 	}
-	tmpEmptyStructType := reflect.TypeOf(struct {}{})
-	tmpEmptyStructValue := reflect.ValueOf(struct {}{})
+	tmpEmptyStructType := reflect.TypeOf(struct{}{})
+	tmpEmptyStructValue := reflect.ValueOf(struct{}{})
 	tmpMap := reflect.MakeMap(reflect.MapOf(inputType.Elem(), tmpEmptyStructType))
 	dv := reflect.MakeSlice(deskValue.Elem().Type(), 0, 0)
-	for i := 0; i < inputValue.Len(); i++  {
+	for i := 0; i < inputValue.Len(); i++ {
 		x := tmpMap.MapIndex(inputValue.Index(i))
 		if !x.IsValid() {
 			tmpMap.SetMapIndex(inputValue.Index(i), tmpEmptyStructValue)
