@@ -4,22 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"net"
+	"testplay/tcp"
 )
 
 func main() {
-	l, err := net.Listen("tcp", ":9999")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	for {
-		conn, err := l.Accept()
-		if err != nil {
-			return
-		}
-
-		go doSer(conn)
-	}
+	tcp.Server()
 }
 
 func doSer(conn net.Conn) {
