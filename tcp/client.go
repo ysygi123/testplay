@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strconv"
 	"testplay/utils"
 	"time"
 )
 
 func sender(conn net.Conn) {
 	for i := 0; i < 1000; i++ {
-		message := utils.S2B("我可娶你娘亲")
+		message := utils.S2B("echo" + strconv.Itoa(i))
 		conn.Write(utils.Pack(message))
 	}
 }

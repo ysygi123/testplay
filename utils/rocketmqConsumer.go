@@ -88,6 +88,8 @@ func GetStartConsumer(topic, groupName, instanceName string, f func(ctx context.
 		consumer.WithGroupName(groupName),
 		consumer.WithNameServer(NameServer),
 		consumer.WithInstance(instanceName),
+		//consumer.WithConsumerModel(consumer.BroadCasting),
+		//consumer.OffsetStore()
 		//consumer.WithConsumeFromWhere(consumer.ConsumeFromLastOffset),
 	)
 	if err != nil {

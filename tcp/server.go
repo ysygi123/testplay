@@ -14,17 +14,24 @@ func Server() {
 
 	defer netListen.Close()
 
+	m := NewConnectPoolManager()
+
 	for {
 		conn, err := netListen.Accept()
 		if err != nil {
 			continue
 		}
-
-		go handleConnection(conn)
+		m.Producer(conn)
 	}
 }
 
-func handleConnection(conn net.Conn) {
+
+func handleConnection(params interface{}) (response interface{}) {
+	conn, ok := params.(net.Conn)
+	if !ok {
+		fmt.Println("hh错了")
+		return
+	}
 	//声明一个临时缓冲区，用来存储被截断的数据
 	tmpBuffer := make([]byte, 0)
 

@@ -18,7 +18,6 @@ import (
 	"testplay/model/es"
 	"testplay/model/mysql"
 	"testplay/service"
-	"testplay/tcp"
 	"testplay/utils"
 	"time"
 )
@@ -384,19 +383,12 @@ func RocketMQTest() {
 }
 
 func Play111() {
-	m := tcp.NewConnectPoolManager()
-	xh := &tcp.MyHandler{
-		Params: 1,
-		HandlerFunc: func(i interface{}) interface{} {
-			fmt.Println("start")
-			time.Sleep(200 * time.Millisecond)
-			fmt.Println("end")
-			return nil
-		},
-	}
-	for i := 0; i < 100; i++ {
-		go m.Producer(xh)
-	}
 
-	time.Sleep(10 * time.Second)
+}
+
+func theHandle(i interface{}) (r interface{}) {
+
+
+
+	return
 }
