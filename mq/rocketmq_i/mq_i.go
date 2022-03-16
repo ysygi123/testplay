@@ -1,4 +1,4 @@
-package mq
+package rocketmq_i
 
 import (
 	"context"
@@ -10,24 +10,6 @@ import (
 
 type RocketMqHandleI interface {
 	GetTopics() []string
-}
-
-type Sem struct {
-	BrowserID   string      `json:"browser_id"`
-	Type        int         `json:"type"`
-	CreatedTime int64       `json:"created_time"`
-	Key         string      `json:"key"`
-	DataType    int         `json:"data_type"`
-	Extend      interface{} `json:"extend"`
-}
-
-type CorpData struct {
-	CID    int    `json:"cid"`
-	CorpID string `json:"corp_id"`
-}
-
-type OrderData struct {
-	OrderNum string `json:"order_num"`
 }
 
 type FatherMqHandler struct {
@@ -44,8 +26,9 @@ func (f *FatherMqHandler) GetMyProducer() (rocketmq.Producer, error) {
 	}
 	var err error
 	f.producer, err = rocketmq.NewProducer(
-		producer.WithNsResolver(primitive.NewPassthroughResolver([]string{"192.168.11.98:9876"})),
+		producer.WithNsResolver(primitive.NewPassthroughResolver(ServerName)),
 		producer.WithRetry(2),
+		producer.WithDefaultTopicQueueNums(6),
 	)
 	if err != nil {
 		return nil, err
