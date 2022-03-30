@@ -1,4 +1,4 @@
-package rocketmq_service
+package consumer
 
 import (
 	"context"
@@ -18,7 +18,7 @@ type T1 struct {
 }
 
 func (t *T1) GetConsumerNum() int {
-	return 2
+	return 6
 }
 
 func (t *T1) GetTopic() string {
@@ -34,10 +34,14 @@ func (t *T1) GetRocketMqHandleC() rocketmq_i.RocketMqHandleC {
 	return t.T1hI
 }
 
+func (t *T1) GetIsOrder() bool {
+	return true
+}
+
 func (t *T1) GetSelector() consumer.MessageSelector {
 	return consumer.MessageSelector{
-		Type:       consumer.TAG,
-		Expression: "TAG1",
+		//Type:       consumer.TAG,
+		//Expression: "TAG1",
 	}
 }
 
@@ -52,7 +56,7 @@ func (t *T1h) SetInstanceName(name string) {
 func (t *T1h) Consumer(ctx context.Context, msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
 	fmt.Println("我的instance是", t.instanceName)
 	for _, v := range msgs {
-		fmt.Println(utils.B2S(v.Body))
+		fmt.Println(utils.B2S(v.Body), "\n 查看一下queue_id是多少:", v.Queue.QueueId)
 		fmt.Println("==============================")
 	}
 	return consumer.ConsumeSuccess, nil

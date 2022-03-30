@@ -6,8 +6,8 @@ import (
 	"github.com/apache/rocketmq-client-go/v2"
 	"github.com/apache/rocketmq-client-go/v2/consumer"
 	"github.com/apache/rocketmq-client-go/v2/primitive"
+	"strconv"
 	"sync"
-	"testplay/utils"
 )
 
 type RocketMqHandleCManger interface {
@@ -16,6 +16,7 @@ type RocketMqHandleCManger interface {
 	GetTopic() string
 	GetGroupName() string
 	GetSelector() consumer.MessageSelector
+	GetIsOrder() bool
 }
 
 type RocketMqHandleC interface {
@@ -48,8 +49,8 @@ func (r *RocketMqManger) Start() {
 	wg.Add(1)
 	for _, c := range r.DB {
 		for i := 0; i < c.GetConsumerNum(); i++ {
-			instanceName := c.GetTopic() + c.GetGroupName() + utils.GetRandomString(6)
-			fmt.Println("【循环DB】 DB为" + c.GetTopic() + " groupName" + c.GetGroupName() + "instanceName=" + instanceName)
+			instanceName := c.GetTopic() + c.GetGroupName() + "编号 : " + strconv.Itoa(i)
+			fmt.Println("【循环DB】 DB为" + c.GetTopic() + "; groupName:" + c.GetGroupName() + "; instanceName=" + strconv.Itoa(i))
 			_ = r.GetStartConsumer(instanceName, c)
 		}
 	}
@@ -65,6 +66,10 @@ func (r *RocketMqManger) GetStartConsumer(instanceName string, c RocketMqHandleC
 		consumer.WithGroupName(c.GetGroupName()),
 		consumer.WithNameServer(ServerName),
 		consumer.WithInstance(instanceName),
+	}
+
+	if c.GetIsOrder() {
+		ops = append(ops, consumer.WithConsumerOrder(true))
 	}
 
 	MqPushConsumerSuccess, err := rocketmq.NewPushConsumer(
