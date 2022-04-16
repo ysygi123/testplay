@@ -8,6 +8,7 @@ package main
 import (
 	"context"
 	"fmt"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/nsqio/go-nsq"
 	"github.com/olivere/elastic/v7"
 	"google.golang.org/grpc"
@@ -23,7 +24,7 @@ import (
 )
 
 func main() {
-	Play111()
+	TestSearchExternal()
 }
 
 func TestArrayColumn() {
@@ -382,13 +383,46 @@ func RocketMQTest() {
 	//time.Sleep(1)
 }
 
-func Play111() {
+func TestAddExternalUser() {
+	ins := make([]elastic.BulkableRequest, 0)
+	est := utils.NewClient()
+	est.SetIndex("sc-external-user")
+	page := 1
+	size := 5000
+	for {
+		list, err := mysql.GetExternalByLimit(page, size)
+		if err != nil {
+			panic(err)
+		}
+		if len(list) == 0 {
+			break
+		}
+		listEla := make([]*es.ScExternalUser, 0, len(list))
+		b, _ := jsoniter.Marshal(list)
+		_ = jsoniter.Unmarshal(b, &listEla)
+		for _, esV := range listEla {
+			req := elastic.NewBulkUpdateRequest().Index(est.Index).Id(strconv.Itoa(int(esV.ID))).Doc(esV).DocAsUpsert(true)
+			ins = append(ins, req)
+		}
+		page += 1
+		resp, err := est.EsClient.Bulk().Add(ins...).Do(context.Background())
+		ins = make([]elastic.BulkableRequest, 0)
+		fmt.Printf("%+v\n%+v\n", resp, err)
+	}
 
 }
 
-func theHandle(i interface{}) (r interface{}) {
+func TestSearchExternal() {
+	option := &es.ExternalOption{
+		QueryBase: es.QueryBase{
+			Page: 0,
+			Size: 0,
+			Sort: nil,
+		},
+		Name:     "杨",
+		CorpName: "蝉妈妈数据",
+	}
 
-
-
-	return
+	list, _ := es.GetExternalWithLimit(option, context.Background())
+	fmt.Println(utils.Data2json(list))
 }
