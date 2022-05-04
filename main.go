@@ -7,6 +7,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/nsqio/go-nsq"
@@ -14,6 +15,8 @@ import (
 	"google.golang.org/grpc"
 	"math/rand"
 	"net"
+	"os"
+	"runtime/pprof"
 	"strconv"
 	"sync"
 	"testplay/model/es"
@@ -24,7 +27,9 @@ import (
 )
 
 func main() {
-	TestSearchExternal()
+	//testchannel()
+	my := &service.MmapTest{}
+	my.Test()
 }
 
 func TestArrayColumn() {
@@ -425,4 +430,98 @@ func TestSearchExternal() {
 
 	list, _ := es.GetExternalWithLimit(option, context.Background())
 	fmt.Println(utils.Data2json(list))
+}
+
+func TestPPROF() {
+	counter := func() {
+		slice := make([]int, 0)
+		c := 1
+		for i := 0; i < 100000; i++ {
+			c = i + 1 + 2 + 3 + 4 + 5
+			slice = append(slice, c)
+		}
+	}
+	workOnce := func(wg *sync.WaitGroup) {
+		counter()
+		wg.Done()
+	}
+
+	var cpuProfile = flag.String("cpuprofile", "", "write cpu profile to file")
+	var memProfile = flag.String("memprofile", "", "write mem profile to file")
+
+	flag.Parse()
+	if *cpuProfile != "" {
+		f, err := os.Create(*cpuProfile)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
+
+	if *memProfile != "" {
+		f, err := os.Create(*memProfile)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		pprof.WriteHeapProfile(f)
+		f.Close()
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(100)
+	for i := 0; i < 100; i++ {
+		go workOnce(&wg)
+	}
+
+	wg.Wait()
+}
+
+func TestContext() {
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+
+	go func(cancelCtx context.Context) {
+		for {
+			select {
+			case <-cancelCtx.Done():
+				fmt.Println("1 g end")
+				goto END
+			default:
+				fmt.Println("1")
+				time.Sleep(1 * time.Second)
+			}
+		}
+	END:
+	}(ctx)
+
+	fmt.Println("赋予新的值")
+	ctx, cancel2 := context.WithCancel(ctx)
+
+	go func(cancelCtx context.Context) {
+		for {
+			select {
+			case <-cancelCtx.Done():
+				fmt.Println("2 g end")
+				goto END
+			default:
+				fmt.Println("2")
+				time.Sleep(1 * time.Second)
+			}
+		}
+	END:
+	}(ctx)
+	//time.Sleep(5 * time.Second)
+	fmt.Println("2 cancel")
+	cancel2()
+	//time.Sleep(5 * time.Second)
+	fmt.Println("1 cancel")
+	cancel()
+}
+
+func testchannel() {
+	var cccccccccc chan int
+	close(cccccccccc)
 }
