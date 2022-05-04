@@ -24,7 +24,7 @@ import (
 )
 
 func main() {
-	TestSearchExternal()
+	TestContext()
 }
 
 func TestArrayColumn() {
@@ -425,4 +425,58 @@ func TestSearchExternal() {
 
 	list, _ := es.GetExternalWithLimit(option, context.Background())
 	fmt.Println(utils.Data2json(list))
+}
+
+func TestContext() {
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	go func(ccc context.Context) {
+		for {
+			select {
+			case <-ctx.Done():
+				fmt.Println("g1 done!")
+				goto OVER
+			default:
+				time.Sleep(1 * time.Second)
+				fmt.Println("g1 sleep")
+			}
+		}
+	OVER:
+	}(ctx)
+
+	go func(ccc context.Context) {
+		for {
+			select {
+			case <-ctx.Done():
+				fmt.Println("g2 done!")
+				goto OVER
+			default:
+				time.Sleep(1 * time.Second)
+				fmt.Println("g2 sleep")
+			}
+		}
+	OVER:
+	}(ctx)
+
+	ctx = context.WithValue(ctx, "nm", "sl")
+
+	go func(ccc context.Context) {
+		for {
+			select {
+			case <-ctx.Done():
+				fmt.Println("g3 done!")
+				goto OVER
+			default:
+				time.Sleep(1 * time.Second)
+				fmt.Println("g3 sleep and value", ctx.Value("nm"))
+			}
+		}
+	OVER:
+	}(ctx)
+
+	time.Sleep(3 * time.Second)
+	cancel()
+	fmt.Println("now cancel and sleep")
+	time.Sleep(3 * time.Second)
+	fmt.Println("over")
 }
