@@ -16,6 +16,7 @@ import (
 	"math/rand"
 	"net"
 	"os"
+	"runtime"
 	"runtime/pprof"
 	"strconv"
 	"sync"
@@ -27,9 +28,27 @@ import (
 )
 
 func main() {
-	//testchannel()
-	my := &service.MmapTest{}
-	my.Test()
+	runtime.GOMAXPROCS(2)
+	ps := sync.Pool{
+		New: func() interface{} {
+			return 0
+		},
+	}
+
+	go func() {
+		for i := 1; i < 100; i++ {
+			ps.Put(i)
+		}
+	}()
+	time.Sleep(1 * time.Second)
+
+	ps.Put(100)
+	for i := 0; i < 100; i++ {
+		go func() {
+			fmt.Println("--", ps.Get())
+		}()
+	}
+	time.Sleep(1 * time.Second)
 }
 
 func TestArrayColumn() {

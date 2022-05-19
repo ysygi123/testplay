@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"sync"
 	"testing"
+	"testplay/utils"
 	"time"
 )
 
@@ -55,4 +57,47 @@ func Test_A1(t *testing.T) {
 	}
 END:
 	fmt.Println("over")
+}
+
+func Benchmark_Pool(b *testing.B) {
+	p := sync.Pool{
+		New: func() interface{} {
+			return &bytes.Buffer{}
+		},
+	}
+	wg := sync.WaitGroup{}
+	wg.Add(10)
+	for i := 0; i < 10; i++ {
+		go func() {
+			for j := 0; j < 10000000; j++ {
+				x := p.Get().(*bytes.Buffer)
+				x.Write(utils.S2B("123"))
+				x.Reset()
+				p.Put(x)
+			}
+			wg.Done()
+		}()
+	}
+	wg.Wait()
+}
+
+func Benchmark_NotPool(b *testing.B) {
+	_ = sync.Pool{
+		New: func() interface{} {
+			return &bytes.Buffer{}
+		},
+	}
+	wg := sync.WaitGroup{}
+	wg.Add(10)
+	for i := 0; i < 10; i++ {
+		go func() {
+			for j := 0; j < 10000000; j++ {
+				x := &bytes.Buffer{}
+				x.Write(utils.S2B("123"))
+				x.Reset()
+			}
+			wg.Done()
+		}()
+	}
+	wg.Wait()
 }

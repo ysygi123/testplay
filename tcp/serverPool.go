@@ -25,10 +25,11 @@ func NewConnectPoolManager() *ConnectPoolManager {
 func (c *ConnectPoolManager) Producer(conn net.Conn) {
 	x := (c.Pool.Get()).(*OneConnectHandler)
 	x.MyChannel <- conn
+	c.Pool.Put(x)
 }
 
 type OneConnectHandler struct {
-	MyChannel chan net.Conn
+	MyChannel           chan net.Conn
 	doubleReadWritePool sync.Pool
 }
 
@@ -56,7 +57,7 @@ func (o *OneConnectHandler) Init() {
 	}()
 }
 
-func (o *OneConnectHandler)MyServer(conn net.Conn) {
+func (o *OneConnectHandler) MyServer(conn net.Conn) {
 	defer conn.Close()
 	//声明一个临时缓冲区，用来存储被截断的数据
 	tmpBuffer := make([]byte, 0)
@@ -75,7 +76,6 @@ func (o *OneConnectHandler)MyServer(conn net.Conn) {
 	}
 }
 
-
 type DoubleReadWrite struct {
 	ReadChannel  chan net.Conn
 	WriteChannel chan net.Conn
@@ -88,7 +88,7 @@ func NewReadWrite() *DoubleReadWrite {
 	}
 }
 
-func (d *DoubleReadWrite)ReadInit()  {
+func (d *DoubleReadWrite) ReadInit() {
 	go func() {
 		for {
 			conn, ok := <-d.ReadChannel
@@ -100,7 +100,7 @@ func (d *DoubleReadWrite)ReadInit()  {
 	}()
 }
 
-func (d *DoubleReadWrite)Read(conn net.Conn)  {
+func (d *DoubleReadWrite) Read(conn net.Conn) {
 	for {
 		select {
 		//case data := <-readerChannel:
@@ -109,7 +109,7 @@ func (d *DoubleReadWrite)Read(conn net.Conn)  {
 	}
 }
 
-func (d *DoubleReadWrite)WriteInit()  {
+func (d *DoubleReadWrite) WriteInit() {
 	go func() {
 		for {
 			conn, ok := <-d.WriteChannel
@@ -121,6 +121,6 @@ func (d *DoubleReadWrite)WriteInit()  {
 	}()
 }
 
-func (d *DoubleReadWrite)Write(conn net.Conn)  {
+func (d *DoubleReadWrite) Write(conn net.Conn) {
 
 }
