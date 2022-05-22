@@ -28,26 +28,29 @@ import (
 )
 
 func main() {
-	runtime.GOMAXPROCS(2)
-	ps := sync.Pool{
+	sp := sync.Pool{
 		New: func() interface{} {
-			return 0
+			return 1
 		},
 	}
-
+	runtime.GOMAXPROCS(1)
+	wg := sync.WaitGroup{}
+	//ch := make(chan struct{})
+	wg.Add(2)
 	go func() {
-		for i := 1; i < 100; i++ {
-			ps.Put(i)
+		sp.Put(2)
+		sp.Put(3)
+		sp.Put(4)
+		sp.Put(5)
+		for true {
+
 		}
 	}()
 	time.Sleep(1 * time.Second)
-
-	ps.Put(100)
-	for i := 0; i < 100; i++ {
-		go func() {
-			fmt.Println("--", ps.Get())
-		}()
-	}
+	fmt.Println("======")
+	x := sp.Get().(int)
+	fmt.Println("获取到的x", x)
+	//ch <- struct{}{}
 	time.Sleep(1 * time.Second)
 }
 
